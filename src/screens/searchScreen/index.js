@@ -51,11 +51,16 @@ const Search = () => {
                 navigate('details', {
                   id: item.id,
                   title: item.title,
-                  rate: item.vote_average,
                   poster: item.poster_path,
-                  overview: item.overview,
-                  releaseDate: item.release_date,
-                  runtime: moviesRuntime(item.id),
+                  release: item.release_date,
+                  rate: item.vote_average,
+                  genre:
+                    genres &&
+                    genres.map(g => {
+                      if (g.id === item.genre_ids[0]) {
+                        return g.name;
+                      }
+                    }),
                 })
               }>
               <Image
