@@ -24,7 +24,15 @@ const WatchListContextProvider = ({children}) => {
   const value = {movies, add, remove};
 
   useEffect(() => {
-    AsyncStorage.setItem('movies', `${movies}`);
+    AsyncStorage.getItem('movies').then(movies => {
+      if (movies) {
+        setMovies(JSON.parse(movies));
+      }
+    });
+  }, []);
+
+  useEffect(() => {
+    AsyncStorage.setItem('movies', JSON.stringify(movies));
   }, [movies]);
 
   return (

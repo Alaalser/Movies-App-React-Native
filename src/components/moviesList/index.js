@@ -1,4 +1,10 @@
-import {FlatList, Text, Image, Pressable} from 'react-native';
+import {
+  FlatList,
+  Text,
+  Image,
+  Pressable,
+  ActivityIndicator,
+} from 'react-native';
 import {useEffect, useState} from 'react';
 import {useNavigation} from '@react-navigation/native';
 import {styles} from './styles';
@@ -29,13 +35,9 @@ const MoviesList = ({
   };
 
   const getGenres = async () => {
-    try {
-      const response = await fetch(genresUrl);
-      const data = await response.json();
-      setGenres(data.genres);
-    } catch (error) {
-      console.log(error);
-    }
+    const response = await fetch(genresUrl);
+    const data = await response.json();
+    setGenres(data.genres);
   };
 
   useEffect(() => {
@@ -44,42 +46,48 @@ const MoviesList = ({
   }, []);
 
   return (
-    <FlatList
-      showsHorizontalScrollIndicator={false}
-      showsVerticalScrollIndicator={false}
-      numColumns={numColumns}
-      data={movies}
-      horizontal={horizontal}
-      keyExtractor={item => item.id}
-      renderItem={({item, index}) => (
-        <Pressable
-          onPress={() =>
-            navigate('details', {
-              id: item.id,
-              title: item.title,
-              poster: item.poster_path,
-              release: item.release_date,
-              rate: item.vote_average,
-              genre:
-                genres &&
-                genres.map(g => {
-                  if (g.id === item.genre_ids[0]) {
-                    return g.name;
-                  }
-                }),
-            })
-          }
-          style={[styles.container, listStyle]}>
-          <Image
-            source={{
-              uri: `https://image.tmdb.org/t/p/w500${item.poster_path}`,
-            }}
-            style={[styles.image, imageStyle]}
-          />
-          {number && <Text style={numStyle}>{index + 1}</Text>}
-        </Pressable>
+    <>
+      {loading ? (
+        <ActivityIndicator size={'large'} />
+      ) : (
+        <FlatList
+          showsHorizontalScrollIndicator={false}
+          showsVerticalScrollIndicator={false}
+          numColumns={numColumns}
+          data={movies}
+          horizontal={horizontal}
+          keyExtractor={item => item.id}
+          renderItem={({item, index}) => (
+            <Pressable
+              onPress={() =>
+                navigate('details', {
+                  id: item.id,
+                  title: item.title,
+                  poster: item.poster_path,
+                  release: item.release_date,
+                  rate: item.vote_average,
+                  genre:
+                    genres &&
+                    genres.map(g => {
+                      if (g.id === item.genre_ids[0]) {
+                        return g.name;
+                      }
+                    }),
+                })
+              }
+              style={[styles.container, listStyle]}>
+              <Image
+                source={{
+                  uri: `https://image.tmdb.org/t/p/w500${item.poster_path}`,
+                }}
+                style={[styles.image, imageStyle]}
+              />
+              {number && <Text style={numStyle}>{index + 1}</Text>}
+            </Pressable>
+          )}
+        />
       )}
-    />
+    </>
   );
 };
 

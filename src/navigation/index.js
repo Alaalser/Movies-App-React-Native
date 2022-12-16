@@ -81,7 +81,7 @@ function MyTabs() {
           } else if (route.name === 'Search') {
             iconName = focused ? icons.tab.search2 : icons.tab.search;
           } else if (route.name === 'WatchList') {
-            iconName = focused ? icons.tab.watchList2 : icons.tab.home;
+            iconName = focused ? icons.tab.watchList2 : icons.tab.watchList;
           }
           return <SvgXml xml={iconName} />;
         },

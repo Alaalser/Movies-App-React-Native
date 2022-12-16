@@ -5,6 +5,8 @@ import {useNavigation} from '@react-navigation/native';
 import {SvgXml} from 'react-native-svg';
 import {icons} from '../../utils/icons';
 import {styles} from './styles';
+import {useEffect} from 'react';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const WatchList = () => {
   const {movies} = useContext(MovieListContext);
