@@ -1,9 +1,9 @@
-import {TextInput, View} from 'react-native';
+import {Pressable, TextInput, View} from 'react-native';
 import {SvgXml} from 'react-native-svg';
 import {icons} from '../../utils/icons';
 import {styles} from './styles';
 
-const SearchInput = ({onTouchStart, onChangeText, value}) => {
+const SearchInput = ({onTouchStart, onChangeText, value, onPress}) => {
   return (
     <View style={styles.container}>
       <TextInput
@@ -14,7 +14,9 @@ const SearchInput = ({onTouchStart, onChangeText, value}) => {
         placeholder="Search"
         placeholderTextColor="#67686D"
       />
-      <SvgXml xml={icons.search} style={styles.icon} height={30} width={30} />
+      <Pressable onPress={onPress} style={styles.icon}>
+        <SvgXml xml={icons.search} height={30} width={30} />
+      </Pressable>
     </View>
   );
 };

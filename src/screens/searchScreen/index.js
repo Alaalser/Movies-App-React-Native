@@ -10,16 +10,54 @@ const Search = () => {
   const [movies, setMovies] = useState([]);
   const [search, setSearch] = useState('');
   const [genres, setGenres] = useState([]);
+  const [genreID, setGenreID] = useState('');
 
   const {navigate} = useNavigation();
 
+  const getGenreId = () => {
+    genres &&
+      genres.map(genre => {
+        if (genre.name === search) {
+          setGenreID(genre.id);
+        }
+      });
+  };
+
   const url = `https://api.themoviedb.org/3/search/movie?api_key=${process.env.API_KEY}&language=en-US&query=${search}&page=1&include_adult=false`;
   const genresUrl = `https://api.themoviedb.org/3/genre/movie/list?api_key=${process.env.API_KEY}&language=en-US`;
+  const actorsUrl = `https://api.themoviedb.org/3/search/person?api_key=${process.env.API_KEY}&query=${search}`;
+  const searchGenreUrl = `https://api.themoviedb.org/3/discover/movie?api_key=${process.env.API_KEY}&language=en-US&sort_by=popularity.desc&include_adult=false&include_video=false&page=1&with_genres=${genreID}`;
+  const discoverKeyWordsUrl = `https://api.themoviedb.org/3/discover/movie?api_key=${process.env.API_KEY}&language=en-US&sort_by=popularity.desc&include_adult=false&include_video=false&page=1&with_keywords=${search}`;
 
   const searchMovie = async () => {
     const response = await fetch(url);
     const data = await response.json();
-    setMovies(data.results);
+    if (movies) {
+      setMovies(
+        movies
+          .concat(
+            data.results.filter(m => !movies.map(m => m.id).includes(m.id)),
+          )
+          .reverse(),
+      );
+    } else {
+      setMovies(data.results);
+    }
+  };
+  const moviesByGenres = async () => {
+    const response = await fetch(searchGenreUrl);
+    const data = await response.json();
+    if (movies) {
+      setMovies(
+        movies
+          .concat(
+            data.results.filter(m => !movies.map(m => m.id).includes(m.id)),
+          )
+          .reverse(),
+      );
+    } else {
+      setMovies(data.results);
+    }
   };
 
   const getGenres = async () => {
@@ -28,18 +66,67 @@ const Search = () => {
     setGenres(data.genres);
   };
 
-  useEffect(() => {
-    searchMovie();
-    getGenres();
-  }, [search]);
+  const moviesByActors = async () => {
+    try {
+      const response = await fetch(actorsUrl);
+      const data = await response.json();
+      if (movies) {
+        if (search.length > 2) {
+          setMovies(
+            movies
+              .concat(
+                data &&
+                  data.results[0].known_for.filter(
+                    m => !movies.map(m => m.id).includes(m.id),
+                  ),
+              )
+              .reverse(),
+          );
+        }
+      } else {
+        setMovies(data.results[0].known_for);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const getMoviesByKeywords = async () => {
+    const response = await fetch(discoverKeyWordsUrl);
+    const data = await response.json();
+    if (movies) {
+      setMovies(
+        movies
+          .concat(
+            data.results.filter(m => !movies.map(m => m.id).includes(m.id)),
+          )
+          .reverse(),
+      );
+    } else {
+      setMovies(data.results);
+    }
+  };
 
   const onChangeSearch = text => {
     setSearch(text);
   };
 
+  onPress = () => {
+    getGenreId();
+    getGenres();
+    moviesByGenres();
+    searchMovie();
+    moviesByActors();
+    getMoviesByKeywords();
+  };
+
   return (
     <View style={styles.container}>
-      <SearchInput value={search} onChangeText={onChangeSearch} />
+      <SearchInput
+        onPress={onPress}
+        value={search}
+        onChangeText={onChangeSearch}
+      />
       {movies ? (
         <FlatList
           data={movies}
